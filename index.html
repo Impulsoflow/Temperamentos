@@ -1,0 +1,538 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Impulso Coaching - Teste de Temperamento</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    input[type="radio"]:checked + div {
+      background-color: #10B981;
+      border-color: #059669;
+      color: white;
+      position: relative;
+      animation: pulse 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
+    input[type="radio"]:checked + div::before {
+      content: '●';
+      color: #059669;
+      position: absolute;
+      left: -20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.2rem;
+    }
+    .option-btn {
+      transition: all 0.2s ease;
+    }
+    .option-btn:hover {
+      transform: scale(1.05);
+      filter: brightness(1.1);
+      background-color: #1E40AF;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body class="bg-blue-900 flex justify-center items-center min-h-screen">
+  <div class="bg-blue-800 p-8 rounded-2xl shadow-2xl max-w-5xl w-full m-6">
+    <h1 class="text-5xl font-extrabold text-center mb-6 text-yellow-300 drop-shadow-lg">Impulso Coaching - Teste de Temperamento</h1>
+    <p class="text-center mb-8 text-white text-lg">Escolha a palavra que melhor descreve seu comportamento. Cada pergunta avalia um aspecto específico, com significados explicados. Clique em uma opção por linha. Preencha todos os campos e clique em "Enviar Resultado".</p>
+    
+    <!-- Formulário -->
+    <div class="mb-10">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-white mb-1">Nome *</label>
+          <input id="name" type="text" class="w-full p-3 bg-blue-900 text-white border border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+        </div>
+        <div>
+          <label class="block text-white mb-1">Profissão *</label>
+          <input id="profession" type="text" class="w-full p-3 bg-blue-900 text-white border border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+        </div>
+        <div>
+          <label class="block text-white mb-1">E-mail *</label>
+          <input id="email" type="email" class="w-full p-3 bg-blue-900 text-white border border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+        </div>
+      </div>
+    </div>
+
+    <!-- Perguntas -->
+    <div id="quiz" class="space-y-6 max-h-96 overflow-y-auto pr-2">
+      <!-- Perguntas inseridas dinamicamente -->
+    </div>
+    <button id="submit" class="mt-8 w-full bg-green-500 text-white py-4 rounded-lg hover:bg-green-600 transition transform hover:scale-105 animate-pulse">Enviar Resultado</button>
+
+    <!-- Resultados -->
+    <div id="result" class="mt-10 hidden">
+      <h2 class="text-3xl font-semibold text-yellow-300 mb-4">Seu Resultado</h2>
+      <canvas id="temperamentChart" class="mt-4 bg-white rounded-lg p-4"></canvas>
+      <p id="result-text" class="mt-6 text-white text-lg"></p>
+    </div>
+  </div>
+
+  <script>
+    const { jsPDF } = window.jspdf;
+    const questions = [
+      {
+        theme: "sua abordagem diante das responsabilidades",
+        options: ["Despreocupado", "Impulsivo", "Pessimista", "Cuidadoso"],
+        meanings: [
+          "Você lida com responsabilidades de forma leve, sem se preocupar muito com detalhes.",
+          "Você age rapidamente, guiado por impulsos, sem planejar muito.",
+          "Você tende a focar nos riscos ou falhas potenciais das responsabilidades.",
+          "Você planeja cuidadosamente e presta atenção aos detalhes."
+        ]
+      },
+      {
+        theme: "sua reação em situações de pressão",
+        options: ["Calmo", "Irrequieto", "Sombrio", "Metódico"],
+        meanings: [
+          "Você mantém a serenidade mesmo sob pressão.",
+          "Você fica inquieto e busca ação imediata em momentos tensos.",
+          "Você se torna sério ou melancólico quando pressionado.",
+          "Você organiza suas ações de forma estruturada para lidar com a pressão."
+        ]
+      },
+      {
+        theme: "seu estado emocional em eventos sociais",
+        options: ["Animado", "Esquentado", "Amuado", "Estável"],
+        meanings: [
+          "Você se sente energizado e entusiasmado em eventos sociais.",
+          "Você pode reagir com intensidade ou irritação em interações sociais.",
+          "Você tende a se retrair ou ficar emburrado em eventos sociais.",
+          "Você mantém um equilíbrio emocional, independentemente do contexto."
+        ]
+      },
+      {
+        theme: "sua energia em atividades diárias",
+        options: ["Jovial", "Ativo", "Sóbrio", "Passivo"],
+        meanings: [
+          "Você aborda suas tarefas com alegria e leveza.",
+          "Você é dinâmico e cheio de energia nas atividades.",
+          "Você mantém uma postura séria e contida no dia a dia.",
+          "Você prefere observar e agir minimamente nas tarefas."
+        ]
+      },
+      {
+        theme: "sua interação com novas pessoas",
+        options: ["Sociável", "Excitável", "Nervoso", "Pacato"],
+        meanings: [
+          "Você gosta de conhecer e se conectar com novas pessoas.",
+          "Você reage com entusiasmo, mas às vezes de forma intensa, ao conhecer outros.",
+          "Você fica ansioso ou tenso ao interagir com estranhos.",
+          "Você é calmo e reservado em novas interações."
+        ]
+      },
+      {
+        theme: "sua postura em conversas",
+        options: ["Simpático", "Envergonhado", "Distante", "Pensativo"],
+        meanings: [
+          "Você é amigável e acolhedor ao conversar.",
+          "Você se sente tímido e hesitante em conversas.",
+          "Você mantém uma certa distância emocional ao falar.",
+          "Você reflete antes de responder, sendo mais introspectivo."
+        ]
+      },
+      {
+        theme: "seu estilo de comunicação",
+        options: ["Gosta de falar", "Agressivo", "Quieto", "Calmo"],
+        meanings: [
+          "Você é expressivo e gosta de compartilhar ideias verbalmente.",
+          "Você pode ser intenso ou confrontador ao se comunicar.",
+          "Você prefere ouvir e fala pouco.",
+          "Você se comunica de forma serena e equilibrada."
+        ]
+      },
+      {
+        theme: "sua abordagem na tomada de decisões",
+        options: ["Age rápido", "Um Líder", "Reservado", "Controlado"],
+        meanings: [
+          "Você decide rapidamente, sem hesitar muito.",
+          "Você assume a liderança e guia as decisões.",
+          "Você prefere refletir em silêncio antes de decidir.",
+          "Você controla suas emoções e analisa antes de agir."
+        ]
+      },
+      {
+        theme: "sua relação com o trabalho",
+        options: ["Viciado em trabalho", "Convincente", "Resignado", "Folgado"],
+        meanings: [
+          "Você se dedica intensamente às suas tarefas profissionais.",
+          "Você persuade outros para alcançar objetivos no trabalho.",
+          "Você aceita as demandas do trabalho sem resistência.",
+          "Você evita esforços extras, preferindo um ritmo leve."
+        ]
+      },
+      {
+        theme: "sua energia em conversas",
+        options: ["Tagarela", "Cheio de energia", "Triste", "Sereno"],
+        meanings: [
+          "Você fala muito e com entusiasmo em conversas.",
+          "Você traz dinamismo e vivacidade às interações.",
+          "Você pode parecer melancólico ou desanimado ao conversar.",
+          "Você mantém um tom calmo e equilibrado nas conversas."
+        ]
+      },
+      {
+        theme: "sua expressão em público",
+        options: ["Eloquente", "Extrovertido", "Desanimado", "Sem pressa"],
+        meanings: [
+          "Você se expressa com clareza e charme em público.",
+          "Você é aberto e gosta de chamar atenção em eventos.",
+          "Você parece desmotivado ou retraído em público.",
+          "Você fala e age lentamente, sem urgência."
+        ]
+      },
+      {
+        theme: "sua profundidade nas relações",
+        options: ["Superficial", "Turbulento", "Pensativo", "Lento"],
+        meanings: [
+          "Você prefere interações leves, evitando profundidade.",
+          "Suas relações podem ser intensas e instáveis.",
+          "Você reflete profundamente sobre suas conexões.",
+          "Você leva tempo para se conectar emocionalmente."
+        ]
+      },
+      {
+        theme: "sua expressão emocional",
+        options: ["Expansivo", "Impaciente", "Introspectivo", "Implacável"],
+        meanings: [
+          "Você demonstra emoções de forma aberta e vibrante.",
+          "Você reage com impaciência quando as emoções surgem.",
+          "Você guarda suas emoções, refletindo internamente.",
+          "Você é rígido e firme em suas emoções."
+        ]
+      },
+      {
+        theme: "sua iniciativa em projetos",
+        options: ["Falante", "Empreendedor", "Egoísta", "Comedido"],
+        meanings: [
+          "Você compartilha ideias com entusiasmo em projetos.",
+          "Você toma a iniciativa e lidera novos projetos.",
+          "Você prioriza seus próprios interesses em projetos.",
+          "Você age com moderação, evitando riscos."
+        ]
+      },
+      {
+        theme: "sua atitude em grupos",
+        options: ["Amigável", "Pioneiro", "Exigente", "Tranquilo"],
+        meanings: [
+          "Você é acolhedor e caloroso em grupos.",
+          "Você lidera e propõe ideias novas em grupos.",
+          "Você espera alto desempenho de si e dos outros.",
+          "Você prefere um papel calmo e pacífico no grupo."
+        ]
+      },
+      {
+        theme: "sua resposta a mudanças",
+        options: ["Adaptável", "Barulhento", "Suscetível", "Ensimesmado"],
+        meanings: [
+          "Você se ajusta facilmente a novas situações.",
+          "Você reage de forma expressiva e chamativa a mudanças.",
+          "Você é sensível e pode se sentir abalado por mudanças.",
+          "Você se fecha e reflete internamente diante de mudanças."
+        ]
+      },
+      {
+        theme: "seu estilo pessoal",
+        options: ["Pitoresco", "Prático", "Leitor", "Reservado"],
+        meanings: [
+          "Você tem um jeito expressivo e colorido.",
+          "Você é focado em soluções práticas no seu dia a dia.",
+          "Você gosta de aprender e refletir em seu tempo livre.",
+          "Você é discreto, evitando chamar atenção."
+        ]
+      },
+      {
+        theme: "sua criatividade",
+        options: ["Brilhante", "Dramático", "Lento", "Sonhador"],
+        meanings: [
+          "Você tem ideias criativas e inovadoras.",
+          "Você expressa sua criatividade de forma intensa.",
+          "Você demora para desenvolver ideias criativas.",
+          "Você é imaginativo, com ideias sonhadoras."
+        ]
+      },
+      {
+        theme: "sua paciência em tarefas",
+        options: ["Impaciente", "Esquecido", "Tristonho", "Gosta de rotina"],
+        meanings: [
+          "Você fica irritado com demoras em tarefas.",
+          "Você pode esquecer detalhes importantes no trabalho.",
+          "Você se sente melancólico ao realizar tarefas.",
+          "Você prefere tarefas previsíveis e rotineiras."
+        ]
+      },
+      {
+        theme: "sua abordagem em desafios",
+        options: ["Irresponsável", "Esportivo", "Monossilábico", "Lento para aprender"],
+        meanings: [
+          "Você evita responsabilidades em desafios.",
+          "Você aborda desafios com energia e competitividade.",
+          "Você responde de forma breve e reservada aos desafios.",
+          "Você leva tempo para entender e superar desafios."
+        ]
+      },
+      {
+        theme: "sua confiabilidade",
+        options: ["Não-Confiável", "Competitivo", "Intelectual", "Perseverante"],
+        meanings: [
+          "Você nem sempre cumpre compromissos assumidos.",
+          "Você busca vencer e se destacar em compromissos.",
+          "Você valoriza análise e conhecimento em suas ações.",
+          "Você persiste até completar suas responsabilidades."
+        ]
+      },
+      {
+        theme: "sua resiliência",
+        options: ["Escorregadio", "Resistente", "Boa memória", "Obstinado"],
+        meanings: [
+          "Você evita enfrentar dificuldades diretamente.",
+          "Você é forte e enfrenta adversidades com determinação.",
+          "Você lembra detalhes que ajudam na superação de obstáculos.",
+          "Você é teimoso e não desiste facilmente."
+        ]
+      },
+      {
+        theme: "sua flexibilidade social",
+        options: ["Flexível", "Dominador", "Observador", "Tímido"],
+        meanings: [
+          "Você se adapta facilmente a diferentes grupos sociais.",
+          "Você gosta de liderar e controlar interações sociais.",
+          "Você observa atentamente antes de se envolver socialmente.",
+          "Você é reservado em situações sociais."
+        ]
+      },
+      {
+        theme: "sua generosidade",
+        options: ["Generoso", "Intolerante", "Ingrato", "Constante"],
+        meanings: [
+          "Você compartilha recursos e tempo com os outros.",
+          "Você tem dificuldade em aceitar diferenças nos outros.",
+          "Você não valoriza a ajuda que recebe.",
+          "Você mantém uma postura consistente com todos."
+        ]
+      },
+      {
+        theme: "sua produtividade matinal",
+        options: ["Levanta Cedo", "Obstinado", "Insatisfeito", "Sensato"],
+        meanings: [
+          "Você é produtivo e ativo logo pela manhã.",
+          "Você é determinado, mesmo enfrentando dificuldades matinais.",
+          "Você começa o dia sentindo que algo está faltando.",
+          "Você aborda o dia com decisões equilibradas."
+        ]
+      },
+      {
+        theme: "sua estabilidade emocional",
+        options: ["Instável", "Raivoso", "Abnegado", "Indiferente"],
+        meanings: [
+          "Seu humor varia frequentemente ao longo do dia.",
+          "Você reage com raiva em situações emocionais.",
+          "Você prioriza os outros, mesmo sacrificando suas emoções.",
+          "Você permanece emocionalmente neutro ou distante."
+        ]
+      },
+      {
+        theme: "sua atitude geral",
+        options: ["Feliz", "Ousado", "Inconsolável", "Apático"],
+        meanings: [
+          "Você mantém uma postura otimista e alegre.",
+          "Você é corajoso e enfrenta desafios com ousadia.",
+          "Você sente tristeza profunda que é difícil de aliviar.",
+          "Você mostra pouco interesse ou entusiasmo."
+        ]
+      }
+    ];
+
+    const quizDiv = document.getElementById('quiz');
+    questions.forEach((q, index) => {
+      const div = document.createElement('div');
+      div.className = 'p-4 bg-blue-900 rounded-xl';
+      div.innerHTML = `
+        <p class="mb-3 text-white text-lg">${index + 1}. Escolha uma resposta sobre ${q.theme}:</p>
+        <div class="flex flex-wrap gap-3">
+          <label class="inline-flex flex-col px-4 py-3 bg-blue-800 text-white border border-white rounded-lg cursor-pointer option-btn"><input type="radio" name="q${index}" value="A" required class="hidden"><div><span class="font-semibold">A. ${q.options[0]}</span><br><span class="text-sm">${q.meanings[0]}</span></div></label>
+          <label class="inline-flex flex-col px-4 py-3 bg-blue-800 text-white border border-white rounded-lg cursor-pointer option-btn"><input type="radio" name="q${index}" value="B" class="hidden"><div><span class="font-semibold">B. ${q.options[1]}</span><br><span class="text-sm">${q.meanings[1]}</span></div></label>
+          <label class="inline-flex flex-col px-4 py-3 bg-blue-800 text-white border border-white rounded-lg cursor-pointer option-btn"><input type="radio" name="q${index}" value="C" class="hidden"><div><span class="font-semibold">C. ${q.options[2]}</span><br><span class="text-sm">${q.meanings[2]}</span></div></label>
+          <label class="inline-flex flex-col px-4 py-3 bg-blue-800 text-white border border-white rounded-lg cursor-pointer option-btn"><input type="radio" name="q${index}" value="D" class="hidden"><div><span class="font-semibold">D. ${q.options[3]}</span><br><span class="text-sm">${q.meanings[3]}</span></div></label>
+        </div>
+      `;
+      quizDiv.appendChild(div);
+    });
+
+    let chartInstance = null;
+
+    document.getElementById('submit').addEventListener('click', () => {
+      const name = document.getElementById('name').value.trim();
+      const profession = document.getElementById('profession').value.trim();
+      const email = document.getElementById('email').value.trim();
+      if (!name || !profession || !email || !/^\S+@\S+\.\S+$/.test(email)) {
+        alert('Por favor, preencha Nome, Profissão e um E-mail válido.');
+        return;
+      }
+
+      let scores = { A: 0, B: 0, C: 0, D: 0 };
+      for (let i = 0; i < questions.length; i++) {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        if (!selected) {
+          alert('Por favor, responda todas as perguntas.');
+          return;
+        }
+        scores[selected.value]++;
+      }
+
+      // Determina temperamento predominante e secundário
+      const temperaments = [
+        { name: 'Sanguíneo', score: scores.A, icon: '😄', description: 'Sociável, extrovertido, otimista, mas pode ser impulsivo e desorganizado.<br><strong>Pontos Fortes:</strong> Comunicativo, inspirador, ama interagir.<br><strong>Desafios:</strong> Pode ser superficial ou irresponsável.' },
+        { name: 'Colérico', score: scores.B, icon: '🔥', description: 'Líder nato, enérgico, determinado, but pode ser impaciente e dominador.<br><strong>Pontos Fortes:</strong> Focado, decisivo, motivador.<br><strong>Desafios:</strong> Pode ser agressivo ou intolerante.' },
+        { name: 'Melancólico', score: scores.C, icon: '🖌️', description: 'Reflexivo, perfeccionista, leal, mas pode ser pessimista e introspectivo.<br><strong>Pontos Fortes:</strong> Analítico, detalhista, criativo.<br><strong>Desafios:</strong> Pode ser triste ou exigente demais.' },
+        { name: 'Fleumático', score: scores.D, icon: '☮️', description: 'Calmo, pacífico, confiável, mas pode ser passivo e lento.<br><strong>Pontos Fortes:</strong> Equilibrado, diplomático, constante.<br><strong>Desafios:</strong> Pode ser apático ou resistente a mudanças.' }
+      ];
+
+      // Ordena por pontuação para encontrar predominante e secundário
+      temperaments.sort((a, b) => b.score - a.score);
+      const primary = temperaments[0];
+      const secondary = temperaments[1].score > 0 ? temperaments[1] : null;
+
+      // Calcula porcentagens para o gráfico
+      const total = questions.length;
+      const percentages = {
+        Sanguíneo: (scores.A / total) * 100,
+        Colérico: (scores.B / total) * 100,
+        Melancólico: (scores.C / total) * 100,
+        Fleumático: (scores.D / total) * 100
+      };
+
+      // Cria o gráfico com cores ajustadas
+      const ctx = document.getElementById('temperamentChart').getContext('2d');
+      if (chartInstance) chartInstance.destroy();
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Sanguíneo 😄', 'Colérico 🔥', 'Melancólico 🖌️', 'Fleumático ☮️'],
+          datasets: [{
+            label: 'Porcentagem',
+            data: [percentages.Sanguíneo, percentages.Colérico, percentages.Melancólico, percentages.Fleumático],
+            backgroundColor: ['#FF6B6B', '#FF9500', '#4A90E2', '#2ECC71'],
+            borderColor: ['#C0392B', '#D35400', '#2A4B9B', '#27AE60'],
+            borderWidth: 2
+          }]
+        },
+        options: {
+          scales: {
+            y: { beginAtZero: true, max: 100, title: { display: true, text: 'Porcentagem (%)', color: '#000' } },
+            x: { ticks: { color: '#000' } }
+          },
+          plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Distribuição dos Temperamentos', font: { size: 18 }, color: '#000' }
+          }
+        }
+      });
+
+      // Exibe resultado
+      const resultDiv = document.getElementById('result');
+      const resultText = document.getElementById('result-text');
+      let resultHTML = `
+        <strong class="text-yellow-300">Temperamento Predominante: ${primary.name} ${primary.icon}</strong><br>
+        ${primary.description}<br><br>
+      `;
+      if (secondary) {
+        resultHTML += `
+          <strong class="text-yellow-300">Segundo Temperamento Predominante: ${secondary.name} ${secondary.icon}</strong><br>
+          ${secondary.description.split('<br>')[0]}<br><br>
+        `;
+      }
+      resultHTML += `
+        <strong class="text-yellow-300">Resultados:</strong><br>
+        - Sanguíneo: ${scores.A} (${percentages.Sanguíneo.toFixed(1)}%)<br>
+        - Colérico: ${scores.B} (${percentages.Colérico.toFixed(1)}%)<br>
+        - Melancólico: ${scores.C} (${percentages.Melancólico.toFixed(1)}%)<br>
+        - Fleumático: ${scores.D} (${percentages.Fleumático.toFixed(1)}%)<br><br>
+        Fonte: Instituto Impulso Coaching – www.impulsocoaching.com.br
+      `;
+      resultText.innerHTML = resultHTML;
+      resultDiv.classList.remove('hidden');
+      window.scrollTo(0, resultDiv.offsetTop);
+
+      // Gera PDF automaticamente
+      setTimeout(() => {
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        doc.setFontSize(16);
+        doc.setTextColor(0, 0, 255);
+        doc.text('Impulso Coaching - Teste de Temperamento', 10, 10);
+        doc.setFontSize(12);
+        doc.setTextColor(0);
+        doc.text(`Nome: ${name}`, 10, 20);
+        doc.text(`Profissão: ${profession}`, 10, 30);
+        doc.text(`E-mail: ${email}`, 10, 40);
+        doc.text(`Temperamento Predominante: ${primary.name} ${primary.icon}`, 10, 50);
+        doc.text(primary.description.replace(/<br>/g, ' ').replace(/<strong>/g, '').replace(/<\/strong>/g, ''), 10, 60, { maxWidth: 190 });
+        let yOffset = 90;
+        if (secondary) {
+          doc.text(`Segundo Temperamento Predominante: ${secondary.name} ${secondary.icon}`, 10, yOffset);
+          doc.text(secondary.description.split('<br>')[0], 10, yOffset + 10, { maxWidth: 190 });
+          yOffset += 20;
+        }
+        doc.text('Resultados:', 10, yOffset);
+        doc.text(`- Sanguíneo: ${scores.A} (${percentages.Sanguíneo.toFixed(1)}%)`, 10, yOffset + 10);
+        doc.text(`- Colérico: ${scores.B} (${percentages.Colérico.toFixed(1)}%)`, 10, yOffset + 20);
+        doc.text(`- Melancólico: ${scores.C} (${percentages.Melancólico.toFixed(1)}%)`, 10, yOffset + 30);
+        doc.text(`- Fleumático: ${scores.D} (${percentages.Fleumático.toFixed(1)}%)`, 10, yOffset + 40);
+        doc.text('Gráfico dos Temperamentos:', 10, yOffset + 50);
+        const chartImg = document.getElementById('temperamentChart').toDataURL('image/png');
+        doc.addImage(chartImg, 'PNG', 10, yOffset + 60, 190, 100);
+        doc.text('Fonte: Instituto Impulso Coaching – www.impulsocoaching.com.br', 10, yOffset + 170);
+        doc.save('Teste_de_Temperamento.pdf');
+      }, 1000); // Atraso para renderizar o gráfico
+    });
+  </script>
+</body>
+</html>
