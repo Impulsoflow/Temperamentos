@@ -40,499 +40,664 @@
         </script><!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Impulso Coaching - Teste de Temperamento</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <style>
-    input[type="radio"]:checked + div {
-      background-color: #10B981;
-      border-color: #059669;
-      color: white;
-      position: relative;
-      animation: pulse 0.3s ease;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    }
-    input[type="radio"]:checked + div::before {
-      content: '●';
-      color: #059669;
-      position: absolute;
-      left: -20px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 1.2rem;
-    }
-    .option-btn {
-      transition: all 0.2s ease;
-    }
-    .option-btn:hover {
-      transform: scale(1.05);
-      filter: brightness(1.1);
-      background-color: #1E40AF;
-    }
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste sua Determinação - ImpulsoCoaching</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #1b5e20, #388e3c);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .container {
+            max-width: 1280px;
+            width: 100%;
+            margin: 0 auto;
+            background: linear-gradient(to bottom, #ffffff, #f5f5f5);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+        h1 {
+            color: #2e7d32;
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #7b1fa2;
+            font-size: 1.6em;
+            font-weight: 600;
+            margin: 20px 0 10px;
+        }
+        h3 {
+            color: #ff9800;
+            font-size: 1.3em;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        .form-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .form-group label {
+            position: relative;
+            display: block;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px 12px 40px;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            font-size: 1em;
+            background: #f9f9f9;
+            transition: all 0.3s ease;
+        }
+        .form-group input:focus {
+            border-color: #2e7d32;
+            background: #fff;
+            box-shadow: 0 0 8px rgba(46, 125, 50, 0.2);
+            outline: none;
+        }
+        .form-group input.error {
+            border-color: #e91e63;
+        }
+        .form-group label i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #4caf50;
+            transition: all 0.3s ease;
+        }
+        .form-group input:focus + i {
+            color: #2e7d32;
+        }
+        .instructions {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 6px solid #2e7d32;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1em;
+            color: #1b5e20;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .instructions i {
+            color: #2e7d32;
+            font-size: 1.8em;
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 20px 0;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 12px;
+            text-align: center;
+            transition: background 0.3s ease;
+        }
+        th {
+            background: linear-gradient(to right, #2e7d32, #4caf50);
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-radius: 8px 8px 0 0;
+        }
+        td.number {
+            background: #2e7d32;
+            color: white;
+            font-weight: 500;
+            border-radius: 8px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        td.question {
+            background: #2e7d32;
+            color: white;
+            font-weight: 500;
+            border-radius: 8px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+        td.response-cell {
+            background: #2e7d32;
+            color: white;
+            border-radius: 8px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        tr:hover td.number, tr:hover td.question, tr:hover td.response-cell {
+            background: #1b5e20;
+        }
+        tr:hover td {
+            background: #e8f5e9;
+        }
+        tr.highlighted td {
+            background: #c8e6c9 !important;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #4caf50;
+            background: #e8f5e9;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            color: #333;
+        }
+        select:focus {
+            border-color: #2e7d32;
+            background: #fff;
+            box-shadow: 0 0 8px rgba(46, 125, 50, 0.2);
+            outline: none;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        #resultsSection, #explanationSection {
+            display: none;
+        }
+        .footer {
+            font-size: 0.9em;
+            color: #1b5e20;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .signature {
+            font-size: 0.7em;
+            color: #546e7a;
+        }
+        #submitBtn {
+            background: linear-gradient(45deg, #2e7d32, #4caf50);
+            color: white;
+            padding: 14px 40px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 500;
+            display: block;
+            margin: 20px auto;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+        }
+        #submitBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46, 125, 50, 0.4);
+            background: linear-gradient(45deg, #1b5e20, #388e3c);
+        }
+        #submitBtn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.5s, height 0.5s;
+        }
+        #submitBtn:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+        #result {
+            font-size: 1.3em;
+            font-weight: 600;
+            text-align: center;
+            color: #2e7d32;
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 04px 12px rgba(0, 0, 0, 0.05);
+        }
+        #chartContainer {
+            max-width: 800px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            .form-group {
+                grid-template-columns: 1fr;
+            }
+            table {
+                font-size: 0.9em;
+            }
+            th, td {
+                padding: 8px;
+            }
+            #submitBtn {
+                padding: 12px 30px;
+                font-size: 1em;
+            }
+        }
+    </style>
 </head>
-<body class="bg-blue-900 flex justify-center items-center min-h-screen">
-  <div class="bg-blue-800 p-8 rounded-2xl shadow-2xl max-w-5xl w-full m-6">
-    <h1 class="text-5xl font-extrabold text-center mb-6 text-yellow-300 drop-shadow-lg">Impulso Coaching - Teste de Temperamento</h1>
-    <p class="text-center mb-8 text-white text-lg">Escolha a palavra que melhor descreve seu comportamento. Cada pergunta avalia um aspecto específico, com significados explicados. Clique em uma opção por linha. Preencha todos os campos e clique em "Enviar Resultado".</p>
-    
-    <!-- Formulário -->
-    <div class="mb-10">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label class="block text-white mb-1">Nome *</label>
-          <input id="name" type="text" class="w-full p-3 bg-blue-900 text-white border border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+<body>
+    <div class="container">
+        <div class="section">
+            <h1>Teste sua Determinação - ImpulsoCoaching</h1>
+            <h2>Palestras | Treinamentos | Mindset</h2>
+            <p style="text-align: center; color: #2e7d32; font-style: italic;">A mudança pode acontecer em um instante...</p>
+
+            <div class="form-group">
+                <label for="name-input">
+                    <input id="name-input" type="text" placeholder="Nome" aria-required="true" required>
+                    <i class="fas fa-user"></i>
+                </label>
+                <label for="occupation-input">
+                    <input id="occupation-input" type="text" placeholder="Profissão" aria-required="true" required>
+                    <i class="fas fa-briefcase"></i>
+                </label>
+                <label for="email-input">
+                    <input id="email-input" type="email" placeholder="E-mail" aria-required="true" required>
+                    <i class="fas fa-envelope"></i>
+                </label>
+            </div>
+
+            <div class="instructions">
+                <i class="fas fa-info-circle"></i>
+                <p><strong>Instruções:</strong> Selecione a opção que melhor descreve você para cada pergunta. Escolha entre <strong>Nada a ver comigo</strong>, <strong>Não muito a ver comigo</strong>, <strong>Um pouco a ver comigo</strong>, <strong>Bastante a ver comigo</strong> ou <strong>Totalmente a ver comigo</strong>.</p>
+            </div>
+
+            <table id="determinacao">
+                <tr>
+                    <th>#</th>
+                    <th>Pergunta</th>
+                    <th>Resposta</th>
+                </tr>
+                <tr>
+                    <td class="number">1</td>
+                    <td class="question">Novas ideias e novos projetos às vezes me distraem dos anteriores</td>
+                    <td class="response-cell"><select class="response"></select></td>
+                </tr>
+                <tr>
+                    <td class="number">2</td>
+                    <td class="question">Obstáculos não me desestimulam. Eu não desisto com facilidade.</td>
+                    <td class="response-cell"><select class="response"></select></td>
+                </tr>
+                <tr>
+                    <td class="number">3</td>
+                    <td class="question">Muitas vezes eu defino um objetivo, mas depois prefiro buscar outro</td>
+                    <td class="response-cell"><select class="response"></select></td>
+                </tr>
+                <tr>
+                    <td class="number">4</td>
+                    <td class="question">Sou um trabalhador esforçado</td>
+                    <td class="response-cell"><select class="response"></select></td>
+                </tr>
+                <tr>
+                    <td class="number">5</td>
+                    <td class="question">Tenho dificuldade para manter o foco em projetos que exigem mais de alguns meses para terminar</td>
+                    <td class="response-cell"><select class="response"></select></td>
+                </tr>
+                <tr>
+                    <td class="number">6</td>
+                    <td class="question">Eu termino tudo o que começo.</td>
+                    <td class="response-cell"><select class="response"></select></td>
+                </tr>
+                <tr>
+                    <td class="number">7</td>
+                    <td class="question">Meus interesses mudam de ano para ano.</td>
+                    <td class="response-cell"><select class="response"></select></td>
+                </tr>
+                <tr>
+                    <td class="number">8</td>
+                    <td class="question">Sou dedicado. Nunca desisto.</td>
+                    <td class="response-cell"><select class="response"></select></td>
+                </tr>
+                <tr>
+                    <td class="number">9</td>
+                    <td class="question">Já tive obcecado durante algum tempo por certa ideia ou projeto, mas depois perdi o interesse.</td>
+                    <td class="response-cell"><select class="response"></select></td>
+                </tr>
+                <tr>
+                    <td class="number">10</td>
+                    <td class="question">Já superei obstáculos para conquistar um objetivo importante.</td>
+                    <td class="response-cell"><select class="response"></select></td>
+                </tr>
+                <tr>
+                    <td class="number" colspan="2"><strong>Pontuação Total</strong></td>
+                    <td class="response-cell"><strong id="totalScore">0</strong></td>
+                </tr>
+            </table>
+
+            <button id="submitBtn">Enviar</button>
+
+            <div id="resultsSection">
+                <div id="result"></div>
+                <div id="chartContainer">
+                    <canvas id="resultChart"></canvas>
+                </div>
+            </div>
+
+            <div id="explanationSection" class="section">
+                <h2>Sobre sua Pontuação de Determinação</h2>
+                <p>Para calcular sua pontuação total de determinação, some todos os pontos das respostas que você marcou e divida por 10. A pontuação máxima nessa escala é 5 (muita determinação); a mais baixa é 1 (sem determinação). Sua pontuação é um reflexo de como você se vê agora. Seu grau de determinação neste momento da vida pode ser diferente de quando você era mais jovem. E se você fizer o teste de novo mais tarde, talvez obtenha uma pontuação diferente. Há muitas razões para se crer que a determinação pode mudar.</p>
+                <h3>Comparação com a Amostra</h3>
+                <p>A tabela abaixo mostra como sua pontuação se compara com uma grande amostra de adultos americanos:</p>
+                <table>
+                    <tr>
+                        <th>Percentual</th>
+                        <th>Pontuação de Determinação</th>
+                    </tr>
+                    <tr><td>10%</td><td>2,5</td></tr>
+                    <tr><td>20%</td><td>3,0</td></tr>
+                    <tr><td>30%</td><td>3,3</td></tr>
+                    <tr><td>40%</td><td>3,5</td></tr>
+                    <tr><td>50%</td><td>3,8</td></tr>
+                    <tr><td>60%</td><td>3,9</td></tr>
+                    <tr><td>70%</td><td>4,1</td></tr>
+                    <tr><td>80%</td><td>4,3</td></tr>
+                    <tr><td>90%</td><td>4,5</td></tr>
+                    <tr><td>95%</td><td>4,7</td></tr>
+                    <tr><td>99%</td><td>4,9</td></tr>
+                </table>
+                <p>Fonte: DUCKWORTH, Angela, 1970. Garra: o poder da força e da perseverança. - 1ª edição - Rio de Janeiro: Intrínseca, 2016, p. 67-68.</p>
+            </div>
+
+            <div class="footer">
+                <p>Instituto ImpulsoCoaching – <a href="http://www.impulsocoaching.com.br" style="color: #2e7d32; text-decoration: none;">www.impulsocoaching.com.br</a></p>
+                <p class="signature">Rogério Braga</p>
+            </div>
         </div>
-        <div>
-          <label class="block text-white mb-1">Profissão *</label>
-          <input id="profession" type="text" class="w-full p-3 bg-blue-900 text-white border border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
-        </div>
-        <div>
-          <label class="block text-white mb-1">E-mail *</label>
-          <input id="email" type="email" class="w-full p-3 bg-blue-900 text-white border border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
-        </div>
-      </div>
     </div>
 
-    <!-- Perguntas -->
-    <div id="quiz" class="space-y-6 max-h-96 overflow-y-auto pr-2">
-      <!-- Perguntas inseridas dinamicamente -->
-    </div>
-    <button id="submit" class="mt-8 w-full bg-green-500 text-white py-4 rounded-lg hover:bg-green-600 transition transform hover:scale-105 animate-pulse">Enviar Resultado</button>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.0/purify.min.js"></script>
+    <script>
+        // Opções de resposta (invertidas para as perguntas 1, 3, 5, 7, 9)
+        const respostas = [
+            { value: "", text: "Selecione" },
+            { value: "1", text: "Nada a ver comigo" },
+            { value: "2", text: "Não muito a ver comigo" },
+            { value: "3", text: "Um pouco a ver comigo" },
+            { value: "4", text: "Bastante a ver comigo" },
+            { value: "5", text: "Totalmente a ver comigo" }
+        ];
 
-    <!-- Resultados -->
-    <div id="result" class="mt-10 hidden">
-      <h2 class="text-3xl font-semibold text-yellow-300 mb-4">Seu Resultado</h2>
-      <canvas id="temperamentChart" class="mt-4 bg-white rounded-lg p-4"></canvas>
-      <p id="result-text" class="mt-6 text-white text-lg"></p>
-    </div>
-  </div>
+        // Preencher dropdowns
+        document.querySelectorAll('.response').forEach((select, index) => {
+            respostas.forEach(resposta => {
+                const option = document.createElement('option');
+                option.value = resposta.value;
+                option.text = resposta.text;
+                select.appendChild(option);
+            });
+            // Inverter pontuação para perguntas 1, 3, 5, 7, 9 (índices 0, 2, 4, 6, 8)
+            if ([0, 2, 4, 6, 8].includes(index)) {
+                select.dataset.inverted = 'true';
+            }
+        });
 
-  <script>
-    const { jsPDF } = window.jspdf;
-    const questions = [
-      {
-        theme: "sua abordagem diante das responsabilidades",
-        options: ["Despreocupado", "Impulsivo", "Pessimista", "Cuidadoso"],
-        meanings: [
-          "Você lida com responsabilidades de forma leve, sem se preocupar muito com detalhes.",
-          "Você age rapidamente, guiado por impulsos, sem planejar muito.",
-          "Você tende a focar nos riscos ou falhas potenciais das responsabilidades.",
-          "Você planeja cuidadosamente e presta atenção aos detalhes."
-        ]
-      },
-      {
-        theme: "sua reação em situações de pressão",
-        options: ["Calmo", "Irrequieto", "Sombrio", "Metódico"],
-        meanings: [
-          "Você mantém a serenidade mesmo sob pressão.",
-          "Você fica inquieto e busca ação imediata em momentos tensos.",
-          "Você se torna sério ou melancólico quando pressionado.",
-          "Você organiza suas ações de forma estruturada para lidar com a pressão."
-        ]
-      },
-      {
-        theme: "seu estado emocional em eventos sociais",
-        options: ["Animado", "Esquentado", "Amuado", "Estável"],
-        meanings: [
-          "Você se sente energizado e entusiasmado em eventos sociais.",
-          "Você pode reagir com intensidade ou irritação em interações sociais.",
-          "Você tende a se retrair ou ficar emburrado em eventos sociais.",
-          "Você mantém um equilíbrio emocional, independentemente do contexto."
-        ]
-      },
-      {
-        theme: "sua energia em atividades diárias",
-        options: ["Jovial", "Ativo", "Sóbrio", "Passivo"],
-        meanings: [
-          "Você aborda suas tarefas com alegria e leveza.",
-          "Você é dinâmico e cheio de energia nas atividades.",
-          "Você mantém uma postura séria e contida no dia a dia.",
-          "Você prefere observar e agir minimamente nas tarefas."
-        ]
-      },
-      {
-        theme: "sua interação com novas pessoas",
-        options: ["Sociável", "Excitável", "Nervoso", "Pacato"],
-        meanings: [
-          "Você gosta de conhecer e se conectar com novas pessoas.",
-          "Você reage com entusiasmo, mas às vezes de forma intensa, ao conhecer outros.",
-          "Você fica ansioso ou tenso ao interagir com estranhos.",
-          "Você é calmo e reservado em novas interações."
-        ]
-      },
-      {
-        theme: "sua postura em conversas",
-        options: ["Simpático", "Envergonhado", "Distante", "Pensativo"],
-        meanings: [
-          "Você é amigável e acolhedor ao conversar.",
-          "Você se sente tímido e hesitante em conversas.",
-          "Você mantém uma certa distância emocional ao falar.",
-          "Você reflete antes de responder, sendo mais introspectivo."
-        ]
-      },
-      {
-        theme: "seu estilo de comunicação",
-        options: ["Gosta de falar", "Agressivo", "Quieto", "Calmo"],
-        meanings: [
-          "Você é expressivo e gosta de compartilhar ideias verbalmente.",
-          "Você pode ser intenso ou confrontador ao se comunicar.",
-          "Você prefere ouvir e fala pouco.",
-          "Você se comunica de forma serena e equilibrada."
-        ]
-      },
-      {
-        theme: "sua abordagem na tomada de decisões",
-        options: ["Age rápido", "Um Líder", "Reservado", "Controlado"],
-        meanings: [
-          "Você decide rapidamente, sem hesitar muito.",
-          "Você assume a liderança e guia as decisões.",
-          "Você prefere refletir em silêncio antes de decidir.",
-          "Você controla suas emoções e analisa antes de agir."
-        ]
-      },
-      {
-        theme: "sua relação com o trabalho",
-        options: ["Viciado em trabalho", "Convincente", "Resignado", "Folgado"],
-        meanings: [
-          "Você se dedica intensamente às suas tarefas profissionais.",
-          "Você persuade outros para alcançar objetivos no trabalho.",
-          "Você aceita as demandas do trabalho sem resistência.",
-          "Você evita esforços extras, preferindo um ritmo leve."
-        ]
-      },
-      {
-        theme: "sua energia em conversas",
-        options: ["Tagarela", "Cheio de energia", "Triste", "Sereno"],
-        meanings: [
-          "Você fala muito e com entusiasmo em conversas.",
-          "Você traz dinamismo e vivacidade às interações.",
-          "Você pode parecer melancólico ou desanimado ao conversar.",
-          "Você mantém um tom calmo e equilibrado nas conversas."
-        ]
-      },
-      {
-        theme: "sua expressão em público",
-        options: ["Eloquente", "Extrovertido", "Desanimado", "Sem pressa"],
-        meanings: [
-          "Você se expressa com clareza e charme em público.",
-          "Você é aberto e gosta de chamar atenção em eventos.",
-          "Você parece desmotivado ou retraído em público.",
-          "Você fala e age lentamente, sem urgência."
-        ]
-      },
-      {
-        theme: "sua profundidade nas relações",
-        options: ["Superficial", "Turbulento", "Pensativo", "Lento"],
-        meanings: [
-          "Você prefere interações leves, evitando profundidade.",
-          "Suas relações podem ser intensas e instáveis.",
-          "Você reflete profundamente sobre suas conexões.",
-          "Você leva tempo para se conectar emocionalmente."
-        ]
-      },
-      {
-        theme: "sua expressão emocional",
-        options: ["Expansivo", "Impaciente", "Introspectivo", "Implacável"],
-        meanings: [
-          "Você demonstra emoções de forma aberta e vibrante.",
-          "Você reage com impaciência quando as emoções surgem.",
-          "Você guarda suas emoções, refletindo internamente.",
-          "Você é rígido e firme em suas emoções."
-        ]
-      },
-      {
-        theme: "sua iniciativa em projetos",
-        options: ["Falante", "Empreendedor", "Egoísta", "Comedido"],
-        meanings: [
-          "Você compartilha ideias com entusiasmo em projetos.",
-          "Você toma a iniciativa e lidera novos projetos.",
-          "Você prioriza seus próprios interesses em projetos.",
-          "Você age com moderação, evitando riscos."
-        ]
-      },
-      {
-        theme: "sua atitude em grupos",
-        options: ["Amigável", "Pioneiro", "Exigente", "Tranquilo"],
-        meanings: [
-          "Você é acolhedor e caloroso em grupos.",
-          "Você lidera e propõe ideias novas em grupos.",
-          "Você espera alto desempenho de si e dos outros.",
-          "Você prefere um papel calmo e pacífico no grupo."
-        ]
-      },
-      {
-        theme: "sua resposta a mudanças",
-        options: ["Adaptável", "Barulhento", "Suscetível", "Ensimesmado"],
-        meanings: [
-          "Você se ajusta facilmente a novas situações.",
-          "Você reage de forma expressiva e chamativa a mudanças.",
-          "Você é sensível e pode se sentir abalado por mudanças.",
-          "Você se fecha e reflete internamente diante de mudanças."
-        ]
-      },
-      {
-        theme: "seu estilo pessoal",
-        options: ["Pitoresco", "Prático", "Leitor", "Reservado"],
-        meanings: [
-          "Você tem um jeito expressivo e colorido.",
-          "Você é focado em soluções práticas no seu dia a dia.",
-          "Você gosta de aprender e refletir em seu tempo livre.",
-          "Você é discreto, evitando chamar atenção."
-        ]
-      },
-      {
-        theme: "sua criatividade",
-        options: ["Brilhante", "Dramático", "Lento", "Sonhador"],
-        meanings: [
-          "Você tem ideias criativas e inovadoras.",
-          "Você expressa sua criatividade de forma intensa.",
-          "Você demora para desenvolver ideias criativas.",
-          "Você é imaginativo, com ideias sonhadoras."
-        ]
-      },
-      {
-        theme: "sua paciência em tarefas",
-        options: ["Impaciente", "Esquecido", "Tristonho", "Gosta de rotina"],
-        meanings: [
-          "Você fica irritado com demoras em tarefas.",
-          "Você pode esquecer detalhes importantes no trabalho.",
-          "Você se sente melancólico ao realizar tarefas.",
-          "Você prefere tarefas previsíveis e rotineiras."
-        ]
-      },
-      {
-        theme: "sua abordagem em desafios",
-        options: ["Irresponsável", "Esportivo", "Monossilábico", "Lento para aprender"],
-        meanings: [
-          "Você evita responsabilidades em desafios.",
-          "Você aborda desafios com energia e competitividade.",
-          "Você responde de forma breve e reservada aos desafios.",
-          "Você leva tempo para entender e superar desafios."
-        ]
-      },
-      {
-        theme: "sua confiabilidade",
-        options: ["Não-Confiável", "Competitivo", "Intelectual", "Perseverante"],
-        meanings: [
-          "Você nem sempre cumpre compromissos assumidos.",
-          "Você busca vencer e se destacar em compromissos.",
-          "Você valoriza análise e conhecimento em suas ações.",
-          "Você persiste até completar suas responsabilidades."
-        ]
-      },
-      {
-        theme: "sua resiliência",
-        options: ["Escorregadio", "Resistente", "Boa memória", "Obstinado"],
-        meanings: [
-          "Você evita enfrentar dificuldades diretamente.",
-          "Você é forte e enfrenta adversidades com determinação.",
-          "Você lembra detalhes que ajudam na superação de obstáculos.",
-          "Você é teimoso e não desiste facilmente."
-        ]
-      },
-      {
-        theme: "sua flexibilidade social",
-        options: ["Flexível", "Dominador", "Observador", "Tímido"],
-        meanings: [
-          "Você se adapta facilmente a diferentes grupos sociais.",
-          "Você gosta de liderar e controlar interações sociais.",
-          "Você observa atentamente antes de se envolver socialmente.",
-          "Você é reservado em situações sociais."
-        ]
-      },
-      {
-        theme: "sua generosidade",
-        options: ["Generoso", "Intolerante", "Ingrato", "Constante"],
-        meanings: [
-          "Você compartilha recursos e tempo com os outros.",
-          "Você tem dificuldade em aceitar diferenças nos outros.",
-          "Você não valoriza a ajuda que recebe.",
-          "Você mantém uma postura consistente com todos."
-        ]
-      },
-      {
-        theme: "sua produtividade matinal",
-        options: ["Levanta Cedo", "Obstinado", "Insatisfeito", "Sensato"],
-        meanings: [
-          "Você é produtivo e ativo logo pela manhã.",
-          "Você é determinado, mesmo enfrentando dificuldades matinais.",
-          "Você começa o dia sentindo que algo está faltando.",
-          "Você aborda o dia com decisões equilibradas."
-        ]
-      },
-      {
-        theme: "sua estabilidade emocional",
-        options: ["Instável", "Raivoso", "Abnegado", "Indiferente"],
-        meanings: [
-          "Seu humor varia frequentemente ao longo do dia.",
-          "Você reage com raiva em situações emocionais.",
-          "Você prioriza os outros, mesmo sacrificando suas emoções.",
-          "Você permanece emocionalmente neutro ou distante."
-        ]
-      },
-      {
-        theme: "sua atitude geral",
-        options: ["Feliz", "Ousado", "Inconsolável", "Apático"],
-        meanings: [
-          "Você mantém uma postura otimista e alegre.",
-          "Você é corajoso e enfrenta desafios com ousadia.",
-          "Você sente tristeza profunda que é difícil de aliviar.",
-          "Você mostra pouco interesse ou entusiasmo."
-        ]
-      }
-    ];
+        // Validação de formulário em tempo real
+        const inputs = ['name-input', 'occupation-input', 'email-input'];
+        inputs.forEach(id => {
+            const input = document.getElementById(id);
+            input.addEventListener('input', () => {
+                if (id === 'email-input' && input.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value)) {
+                    input.classList.add('error');
+                    input.title = 'Por favor, insira um e-mail válido.';
+                } else if (!input.value) {
+                    input.classList.add('error');
+                    input.title = 'Este campo é obrigatório.';
+                } else {
+                    input.classList.remove('error');
+                    input.title = '';
+                }
+            });
+        });
 
-    const quizDiv = document.getElementById('quiz');
-    questions.forEach((q, index) => {
-      const div = document.createElement('div');
-      div.className = 'p-4 bg-blue-900 rounded-xl';
-      div.innerHTML = `
-        <p class="mb-3 text-white text-lg">${index + 1}. Escolha uma resposta sobre ${q.theme}:</p>
-        <div class="flex flex-wrap gap-3">
-          <label class="inline-flex flex-col px-4 py-3 bg-blue-800 text-white border border-white rounded-lg cursor-pointer option-btn"><input type="radio" name="q${index}" value="A" required class="hidden"><div><span class="font-semibold">A. ${q.options[0]}</span><br><span class="text-sm">${q.meanings[0]}</span></div></label>
-          <label class="inline-flex flex-col px-4 py-3 bg-blue-800 text-white border border-white rounded-lg cursor-pointer option-btn"><input type="radio" name="q${index}" value="B" class="hidden"><div><span class="font-semibold">B. ${q.options[1]}</span><br><span class="text-sm">${q.meanings[1]}</span></div></label>
-          <label class="inline-flex flex-col px-4 py-3 bg-blue-800 text-white border border-white rounded-lg cursor-pointer option-btn"><input type="radio" name="q${index}" value="C" class="hidden"><div><span class="font-semibold">C. ${q.options[2]}</span><br><span class="text-sm">${q.meanings[2]}</span></div></label>
-          <label class="inline-flex flex-col px-4 py-3 bg-blue-800 text-white border border-white rounded-lg cursor-pointer option-btn"><input type="radio" name="q${index}" value="D" class="hidden"><div><span class="font-semibold">D. ${q.options[3]}</span><br><span class="text-sm">${q.meanings[3]}</span></div></label>
-        </div>
-      `;
-      quizDiv.appendChild(div);
-    });
-
-    let chartInstance = null;
-
-    document.getElementById('submit').addEventListener('click', () => {
-      const name = document.getElementById('name').value.trim();
-      const profession = document.getElementById('profession').value.trim();
-      const email = document.getElementById('email').value.trim();
-      if (!name || !profession || !email || !/^\S+@\S+\.\S+$/.test(email)) {
-        alert('Por favor, preencha Nome, Profissão e um E-mail válido.');
-        return;
-      }
-
-      let scores = { A: 0, B: 0, C: 0, D: 0 };
-      for (let i = 0; i < questions.length; i++) {
-        const selected = document.querySelector(`input[name="q${i}"]:checked`);
-        if (!selected) {
-          alert('Por favor, responda todas as perguntas.');
-          return;
+        // Destacar linha quando uma resposta é selecionada
+        function updateRowHighlight(select) {
+            const row = select.closest('tr');
+            if (select.value !== '') {
+                row.classList.add('highlighted');
+            } else {
+                row.classList.remove('highlighted');
+            }
         }
-        scores[selected.value]++;
-      }
 
-      // Determina temperamento predominante e secundário
-      const temperaments = [
-        { name: 'Sanguíneo', score: scores.A, icon: '😄', description: 'Sociável, extrovertido, otimista, mas pode ser impulsivo e desorganizado.<br><strong>Pontos Fortes:</strong> Comunicativo, inspirador, ama interagir.<br><strong>Desafios:</strong> Pode ser superficial ou irresponsável.' },
-        { name: 'Colérico', score: scores.B, icon: '🔥', description: 'Líder nato, enérgico, determinado, but pode ser impaciente e dominador.<br><strong>Pontos Fortes:</strong> Focado, decisivo, motivador.<br><strong>Desafios:</strong> Pode ser agressivo ou intolerante.' },
-        { name: 'Melancólico', score: scores.C, icon: '🖌️', description: 'Reflexivo, perfeccionista, leal, mas pode ser pessimista e introspectivo.<br><strong>Pontos Fortes:</strong> Analítico, detalhista, criativo.<br><strong>Desafios:</strong> Pode ser triste ou exigente demais.' },
-        { name: 'Fleumático', score: scores.D, icon: '☮️', description: 'Calmo, pacífico, confiável, mas pode ser passivo e lento.<br><strong>Pontos Fortes:</strong> Equilibrado, diplomático, constante.<br><strong>Desafios:</strong> Pode ser apático ou resistente a mudanças.' }
-      ];
+        document.querySelectorAll('.response').forEach(select => {
+            updateRowHighlight(select);
+            select.addEventListener('change', () => updateRowHighlight(select));
+        });
 
-      // Ordena por pontuação para encontrar predominante e secundário
-      temperaments.sort((a, b) => b.score - a.score);
-      const primary = temperaments[0];
-      const secondary = temperaments[1].score > 0 ? temperaments[1] : null;
-
-      // Calcula porcentagens para o gráfico
-      const total = questions.length;
-      const percentages = {
-        Sanguíneo: (scores.A / total) * 100,
-        Colérico: (scores.B / total) * 100,
-        Melancólico: (scores.C / total) * 100,
-        Fleumático: (scores.D / total) * 100
-      };
-
-      // Cria o gráfico com cores ajustadas
-      const ctx = document.getElementById('temperamentChart').getContext('2d');
-      if (chartInstance) chartInstance.destroy();
-      chartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['Sanguíneo 😄', 'Colérico 🔥', 'Melancólico 🖌️', 'Fleumático ☮️'],
-          datasets: [{
-            label: 'Porcentagem',
-            data: [percentages.Sanguíneo, percentages.Colérico, percentages.Melancólico, percentages.Fleumático],
-            backgroundColor: ['#FF6B6B', '#FF9500', '#4A90E2', '#2ECC71'],
-            borderColor: ['#C0392B', '#D35400', '#2A4B9B', '#27AE60'],
-            borderWidth: 2
-          }]
-        },
-        options: {
-          scales: {
-            y: { beginAtZero: true, max: 100, title: { display: true, text: 'Porcentagem (%)', color: '#000' } },
-            x: { ticks: { color: '#000' } }
-          },
-          plugins: {
-            legend: { display: false },
-            title: { display: true, text: 'Distribuição dos Temperamentos', font: { size: 18 }, color: '#000' }
-          }
+        // Sanitizar entrada para PDF
+        function sanitizeInput(input) {
+            return DOMPurify.sanitize(input);
         }
-      });
 
-      // Exibe resultado
-      const resultDiv = document.getElementById('result');
-      const resultText = document.getElementById('result-text');
-      let resultHTML = `
-        <strong class="text-yellow-300">Temperamento Predominante: ${primary.name} ${primary.icon}</strong><br>
-        ${primary.description}<br><br>
-      `;
-      if (secondary) {
-        resultHTML += `
-          <strong class="text-yellow-300">Segundo Temperamento Predominante: ${secondary.name} ${secondary.icon}</strong><br>
-          ${secondary.description.split('<br>')[0]}<br><br>
-        `;
-      }
-      resultHTML += `
-        <strong class="text-yellow-300">Resultados:</strong><br>
-        - Sanguíneo: ${scores.A} (${percentages.Sanguíneo.toFixed(1)}%)<br>
-        - Colérico: ${scores.B} (${percentages.Colérico.toFixed(1)}%)<br>
-        - Melancólico: ${scores.C} (${percentages.Melancólico.toFixed(1)}%)<br>
-        - Fleumático: ${scores.D} (${percentages.Fleumático.toFixed(1)}%)<br><br>
-        Fonte: Instituto Impulso Coaching – www.impulsocoaching.com.br
-      `;
-      resultText.innerHTML = resultHTML;
-      resultDiv.classList.remove('hidden');
-      window.scrollTo(0, resultDiv.offsetTop);
+        // Tabela de percentis
+        const percentis = [
+            { score: 2.5, percent: 10 },
+            { score: 3.0, percent: 20 },
+            { score: 3.3, percent: 30 },
+            { score: 3.5, percent: 40 },
+            { score: 3.8, percent: 50 },
+            { score: 3.9, percent: 60 },
+            { score: 4.1, percent: 70 },
+            { score: 4.3, percent: 80 },
+            { score: 4.5, percent: 90 },
+            { score: 4.7, percent: 95 },
+            { score: 4.9, percent: 99 }
+        ];
 
-      // Gera PDF automaticamente
-      setTimeout(() => {
-        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-        doc.setFontSize(16);
-        doc.setTextColor(0, 0, 255);
-        doc.text('Impulso Coaching - Teste de Temperamento', 10, 10);
-        doc.setFontSize(12);
-        doc.setTextColor(0);
-        doc.text(`Nome: ${name}`, 10, 20);
-        doc.text(`Profissão: ${profession}`, 10, 30);
-        doc.text(`E-mail: ${email}`, 10, 40);
-        doc.text(`Temperamento Predominante: ${primary.name} ${primary.icon}`, 10, 50);
-        doc.text(primary.description.replace(/<br>/g, ' ').replace(/<strong>/g, '').replace(/<\/strong>/g, ''), 10, 60, { maxWidth: 190 });
-        let yOffset = 90;
-        if (secondary) {
-          doc.text(`Segundo Temperamento Predominante: ${secondary.name} ${secondary.icon}`, 10, yOffset);
-          doc.text(secondary.description.split('<br>')[0], 10, yOffset + 10, { maxWidth: 190 });
-          yOffset += 20;
+        function getPercentile(score) {
+            if (score <= 2.5) return '10% ou menos';
+            for (let i = 0; i < percentis.length - 1; i++) {
+                if (score > percentis[i].score && score <= percentis[i + 1].score) {
+                    return `${percentis[i].percent}%`;
+                }
+            }
+            if (score > 4.9) return '99% ou mais';
+            return '50%'; // Padrão
         }
-        doc.text('Resultados:', 10, yOffset);
-        doc.text(`- Sanguíneo: ${scores.A} (${percentages.Sanguíneo.toFixed(1)}%)`, 10, yOffset + 10);
-        doc.text(`- Colérico: ${scores.B} (${percentages.Colérico.toFixed(1)}%)`, 10, yOffset + 20);
-        doc.text(`- Melancólico: ${scores.C} (${percentages.Melancólico.toFixed(1)}%)`, 10, yOffset + 30);
-        doc.text(`- Fleumático: ${scores.D} (${percentages.Fleumático.toFixed(1)}%)`, 10, yOffset + 40);
-        doc.text('Gráfico dos Temperamentos:', 10, yOffset + 50);
-        const chartImg = document.getElementById('temperamentChart').toDataURL('image/png');
-        doc.addImage(chartImg, 'PNG', 10, yOffset + 60, 190, 100);
-        doc.text('Fonte: Instituto Impulso Coaching – www.impulsocoaching.com.br', 10, yOffset + 170);
-        doc.save('Teste_de_Temperamento.pdf');
-      }, 1000); // Atraso para renderizar o gráfico
-    });
-  </script>
+
+        // Gerar PDF
+        function generatePDF(data, totalScore, avgScore, percentile, explanationText) {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ format: 'a4' });
+                doc.setFillColor(229, 231, 235);
+                doc.rect(0, 0, 210, 297, 'F');
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(20);
+                doc.setTextColor(59, 130, 246);
+                doc.text('ImpulsoCoaching', 20, 10);
+                doc.text('Autodiagnóstico: Determinação', 20, 16);
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                doc.setTextColor(0);
+                doc.text(`Nome: ${sanitizeInput(data.name)}`, 20, 26);
+                doc.text(`Profissão: ${sanitizeInput(data.occupation)}`, 20, 32);
+                doc.text(`E-mail: ${sanitizeInput(data.email)}`, 20, 38);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(14);
+                doc.setTextColor(46, 125, 50);
+                doc.text(`Pontuação de Determinação: ${avgScore.toFixed(1)} (${percentile})`, 20, 46);
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                doc.setTextColor(50, 65, 81);
+                doc.text('Explicação:', 20, 54);
+                const explanationLines = doc.splitTextToSize(explanationText.replace(/<.*?>/g, ''), 170);
+                doc.text(explanationLines, 20, 60);
+                const explanationHeight = explanationLines.length * 5;
+                doc.setFontSize(14);
+                doc.text('Gráfico:', 20, 60 + explanationHeight + 10);
+                try {
+                    const chartCanvas = document.getElementById('resultChart');
+                    const chartImage = chartCanvas.toDataURL('image/png');
+                    doc.addImage(chartImage, 'PNG', 45, 60 + explanationHeight + 15, 120, 60);
+                } catch (error) {
+                    console.error('Erro ao adicionar gráfico ao PDF:', error);
+                    doc.text('Gráfico indisponível devido a um erro.', 45, 60 + explanationHeight + 15);
+                }
+                doc.setFontSize(10);
+                doc.setTextColor(55, 65, 81);
+                doc.text('Fonte: DUCKWORTH, Angela, 1970. Garra: o poder da força e da perseverança. - 1ª edição - Rio de Janeiro: Intrínseca, 2016, p. 67-68.', 105, 60 + explanationHeight + 136, { align: 'center' });
+                doc.text('Instituto Impulso Coaching – www.impulsocoaching.com.br', 105, 60 + explanationHeight + 142, { align: 'center' });
+                doc.text('Rogério Augusto Braga', 105, 60 + explanationHeight + 148, { align: 'center' });
+                doc.save(`Autodiagnostico_Determinacao_Resultado_${sanitizeInput(data.name).replace(/\s+/g, '_')}.pdf`);
+                console.log('PDF gerado e salvo automaticamente');
+            } catch (error) {
+                console.error('Erro ao gerar PDF:', error);
+                alert('Erro ao gerar o PDF. Tente novamente.');
+            }
+        }
+
+        // Criar gráfico
+        function createChart(canvasId, avgScore, data, percentile, explanationText) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            return new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Pontuação de Determinação'],
+                    datasets: [{
+                        label: 'Pontuação',
+                        data: [avgScore],
+                        backgroundColor: '#4caf50',
+                        borderColor: '#388e3c',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 5,
+                            title: {
+                                display: true,
+                                text: 'Pontuação',
+                                color: '#2e7d32',
+                                font: { size: 14, weight: '500' }
+                            },
+                            ticks: { color: '#2e7d32' }
+                        },
+                        y: {
+                            ticks: { color: '#2e7d32', font: { size: 12 } }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Pontuação: ${context.raw.toFixed(1)} (${percentile})`;
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeOutElastic',
+                        onComplete: ({ chart }) => {
+                            if (canvasId === 'resultChart') {
+                                generatePDF(data, avgScore * 10, avgScore, percentile, explanationText);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Manipulador do botão Enviar
+        document.getElementById('submitBtn').addEventListener('click', () => {
+            // Validar campos do formulário
+            const name = document.getElementById('name-input').value.trim();
+            const occupation = document.getElementById('occupation-input').value.trim();
+            const email = document.getElementById('email-input').value.trim();
+            if (!name || !occupation || !email) {
+                alert('Por favor, preencha todos os campos: Nome, Profissão e E-mail.');
+                return;
+            }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                alert('Por favor, insira um e-mail válido.');
+                return;
+            }
+
+            let totalScore = 0;
+            let unanswered = [];
+
+            document.querySelectorAll('.response').forEach((select, index) => {
+                if (!select.value) {
+                    unanswered.push(index + 1);
+                } else {
+                    let value = parseInt(select.value);
+                    // Inverter pontuação para perguntas 1, 3, 5, 7, 9 (índices 0, 2, 4, 6, 8)
+                    if (select.dataset.inverted === 'true') {
+                        value = 6 - value; // Inverter: 1->5, 2->4, 3->3, 4->2, 5->1
+                    }
+                    totalScore += value;
+                }
+            });
+
+            if (unanswered.length > 0) {
+                alert(`Por favor, responda as questões ${unanswered.join(', ')} antes de enviar.`);
+                return;
+            }
+
+            const avgScore = totalScore / 10;
+            document.getElementById('totalScore').textContent = avgScore.toFixed(1);
+
+            // Determinar percentil
+            const percentile = getPercentile(avgScore);
+            const resultText = `Sua pontuação de determinação é: <strong style="color: #4caf50;">${avgScore.toFixed(1)}</strong> (você tem mais determinação do que ${percentile} dos adultos na amostra).`;
+
+            document.getElementById('result').innerHTML = resultText;
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('explanationSection').style.display = 'block';
+
+            // Criar gráfico
+            if (window.myChart) window.myChart.destroy();
+            const explanationText = document.getElementById('explanationSection').innerText;
+            window.myChart = createChart('resultChart', avgScore, { name, occupation, email }, percentile, explanationText);
+        });
+    </script>
 </body>
 </html>
